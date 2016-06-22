@@ -32,9 +32,15 @@ var lastSentTime;
 function handleStatus(event) {
     publish("status/"+event.id,event.status,true);
 }
+
 function handleRuntimeEvent(event) {
     publish("notification/"+event.id,event,true);
 }
+
+function getServer(){
+    return wsServer;
+}
+
 function init(_server,runtime) {
     server = _server;
     settings = runtime.settings;
@@ -230,5 +236,6 @@ module.exports = {
     init:init,
     start:start,
     stop:stop,
-    publish:publish
+    publish:publish,
+    getServer:getServer
 }

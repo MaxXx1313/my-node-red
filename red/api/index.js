@@ -185,6 +185,7 @@ module.exports = {
         needsPermission: auth.needsPermission
     },
     comms: {
+        _getServer: comms.getServer,
         publish: comms.publish
     },
     get adminApp() { return adminApp; },
