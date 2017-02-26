@@ -29,7 +29,9 @@ RED.comms = (function() {
     function connectWS() {
         active = true;
         var path = location.hostname;
-        var port = location.port;
+        var port = RED.settings.websocketPort || location.port;
+        console.log("WEBSOCKET PORT", port);
+        console.log(RED.settings);
         if (port.length !== 0) {
             path = path+":"+port;
         }
