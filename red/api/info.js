@@ -27,7 +27,8 @@ module.exports = {
         var safeSettings = {
             httpNodeRoot: settings.httpNodeRoot||"/",
             version: settings.version,
-            user: req.user
+            user: req.user,
+            websocketPort: process.env.WEBSOCKET_PROXY_PORT
         }
 
         var themeSettings = theme.settings();
