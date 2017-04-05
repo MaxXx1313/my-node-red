@@ -37,8 +37,6 @@ RED.deploy = (function() {
         $("#btn-deploy-icon").attr("src",deploymentTypes[type].img);
     }
 
-    var commitAllowed=false;
-
     /**
      * options:
      *   type: "default" - Button with drop-down options - no further customisation available
@@ -47,13 +45,12 @@ RED.deploy = (function() {
      *      icon : the icon to use. Null removes the icon. default: "red/images/deploy-full-o.png"
      */
     function init(options) {
+        RED.gitvcs.init(resolveConflict);
+
         options = options || {};
         var type = options.type || "default";
 
         if (type == "default") {
-            $('<span class="deploy-button-group button-group"><a id="btn-commit" class="deploy-button disabled" href="#" ' +
-                'onclik=""><span class="deploy-button-content">Commit to Github</span></a></span>').prependTo(".header-toolbar");
-
             $('<li><span class="deploy-button-group button-group">'+
               '<a id="btn-deploy" class="deploy-button disabled" href="#">'+
                 '<span class="deploy-button-content">'+
@@ -94,47 +91,6 @@ RED.deploy = (function() {
         }
 
         $('#btn-deploy').click(function() { save(); });
-        $('#btn-commit').click(function() {
-            if (!commitAllowed) {
-                return;
-            }
-            var nns = RED.nodes.createCompleteNodeSet();
-            $.ajax({
-                url:"/repositoryflows",
-                type: "POST",
-                data: JSON.stringify(nns),
-                contentType: "application/json; charset=utf-8",
-                headers: {
-                    "Node-RED-Deployment-Type": deploymentType
-                }}).done(function(){
-                commitAllowed=false;
-                RED.nodes.originalFlow(nns);
-
-                $("#btn-commit").addClass("disabled");
-                $("#btn-commit").css("cursor", "default");
-                $("#btn-commit").css("background", "#444");
-                $("#btn-commit").css("color", "#999");
-
-
-            })
-                .fail(function(xhr, textStatus, err){
-                    console.log("always", xhr);
-                    if (xhr.status === 409) {
-                        $.ajax({
-                            url:"repositorymode",
-                            type: "POST",
-                            // data: JSON.stringify(data),
-                            // contentType: "application/json; charset=utf-8",
-                            headers: {
-                                "Node-RED-Deployment-Type":deploymentType
-                            }})
-                            .done(function(data, textStatus, xhr) {
-                                resolveConflict(nns);
-                            });
-                    }
-                });
-        });
-
         RED.actions.add("core:deploy-flows",save);
 
         $( "#node-dialog-confirm-deploy" ).dialog({
@@ -241,26 +197,16 @@ RED.deploy = (function() {
         });
 
         RED.events.on('nodes:change',function(state) {
-            $("#btn-commit").addClass("disabled");
-            $("#btn-commit").css("cursor", "default");
-            $("#btn-commit").css("background", "#444");
-            $("#btn-commit").css("color", "#999");
-
+            RED.gitvcs.disableCommitButton();
             if (state.dirty) {
                 window.onbeforeunload = function() {
                     return RED._("deploy.confirm.undeployedChanges");
                 }
                 $("#btn-deploy").removeClass("disabled");
-                commitAllowed=false;
             } else {
                 window.onbeforeunload = null;
                 $("#btn-deploy").addClass("disabled");
-                if (commitAllowed) {
-                    $("#btn-commit").removeClass("disabled");
-                    $("#btn-commit").css("cursor", "pointer");
-                    $("#btn-commit").css("background", "#8C101C");
-                    $("#btn-commit").css("color", "#eee");
-                }
+                RED.gitvcs.enableCommitButtonIfAllowed();
             }
         });
 
@@ -385,7 +331,7 @@ RED.deploy = (function() {
             $(".deploy-button-content").css('opacity',0);
             $(".deploy-button-spinner").show();
             $("#btn-deploy").addClass("disabled");
-            commitAllowed=true;
+            RED.gitvcs.setAllowCommitMode();
 
             var data = {flows:nns};
 

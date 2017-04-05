@@ -1262,6 +1262,7 @@ RED.diff = (function() {
         })
 
         RED.nodes.version(remoteDiff.rev);
+        RED.gitvcs.setLastMergedRevision(remoteDiff.rev);
 
         RED.view.redraw(true);
         RED.palette.refresh();
