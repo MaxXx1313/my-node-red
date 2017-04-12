@@ -364,7 +364,7 @@ RED.diff = (function() {
         var nodeTitleDiv = $("<div>",{class:"node-diff-node-entry-title"})
         createNodeIcon(node,def).appendTo(nodeTitleDiv);
         var contentDiv = $('<div>',{class:"node-diff-node-description"}).appendTo(nodeTitleDiv);
-        var nodeLabel = node.label || node.name || node.id;
+        var nodeLabel = node.label || node.name || node.type || node.id;
         $('<span>',{class:"node-diff-node-label"}).html(nodeLabel).appendTo(contentDiv);
         return nodeTitleDiv;
     }
