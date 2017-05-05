@@ -112,14 +112,7 @@ RED.deploy = (function() {
                         class: "primary disabled",
                         click: function() {
                             if (!$("#node-dialog-confirm-deploy-review").hasClass('disabled')) {
-                                $.ajax({
-                                    url:"repositorymode",
-                                    type: "POST",
-                                    // data: JSON.stringify(data),
-                                    // contentType: "application/json; charset=utf-8",
-                                    headers: {
-                                        "Node-RED-Deployment-Type":deploymentType
-                                    }}).done(function(data, textStatus, xhr) {
+                                RED.gitvcs.sendSignalToReloadFlowFromGithub(function() {
                                     RED.diff.showRemoteDiff();
                                 });
                                 $( this ).dialog( "close" );
@@ -169,7 +162,9 @@ RED.deploy = (function() {
                         $("#node-dialog-confirm-deploy-conflict-manual-merge").hide();
 
                         var now = Date.now();
-                        RED.diff.getRemoteDiff(function(diff) {
+                       RED.gitvcs.sendSignalToReloadFlowFromGithub(function() {
+
+                            RED.diff.getRemoteDiff(function(diff) {
                             var ellapsed = Math.max(1000 - (Date.now()-now), 0);
                             currentDiff = diff;
                             setTimeout(function() {
@@ -184,6 +179,7 @@ RED.deploy = (function() {
                                 $("#node-dialog-confirm-deploy-review").removeClass('disabled')
                             },ellapsed);
                         })
+                       })
 
 
                         $("#node-dialog-confirm-deploy-hide").parent().hide();
@@ -339,7 +335,9 @@ RED.deploy = (function() {
                 data.rev = RED.nodes.version();
             }
 
-            $.ajax({
+            RED.gitvcs.sendSignalToReloadFlowFromGithub(function() {
+
+                $.ajax({
                 url:"flows",
                 type: "POST",
                 data: JSON.stringify(data),
@@ -350,7 +348,7 @@ RED.deploy = (function() {
             }).done(function(data,textStatus,xhr) {
                 RED.nodes.dirty(false);
                 RED.nodes.version(data.rev);
-                //RED.nodes.originalFlow(nns);
+                RED.nodes.originalFlow(nns); //
                 if (hasUnusedConfig) {
                     RED.notify(
                     '<p>'+RED._("deploy.successfulDeploy")+'</p>'+
@@ -399,7 +397,8 @@ RED.deploy = (function() {
                     $(".deploy-button-spinner").hide();
                 },delta);
             });
-        }
+        })
+      }
     }
     return {
         init: init
