@@ -69,18 +69,9 @@ RED.gitvcs = (function () {
             })
             .fail(function (xhr, textStatus, err) {
                 if (xhr.status === 409) {
-                    $.ajax({
-                        url: "/repositorymode",
-                        type: "POST",
-                        // data: JSON.stringify(data),
-                        // contentType: "application/json; charset=utf-8",
-                        headers: {
-                            "Node-RED-Deployment-Type": deploymentType
-                        }
-                    })
-                        .done(function (data, textStatus, xhr) {
-                            if (resolveConflictFunction) resolveConflictFunction(nns);
-                        });
+                    sendSignalToReloadFlowFromGithub(function() {
+                        if (resolveConflictFunction) resolveConflictFunction(nns);
+                    });
                 }
             }).always(function(){
                 var delta = Math.max(0,300-(Date.now()-startTime));
@@ -91,6 +82,19 @@ RED.gitvcs = (function () {
             });
     }
 
+    function sendSignalToReloadFlowFromGithub(callback) {
+        $.ajax({
+            url: "/repositorymode",
+            type: "POST",
+            // data: JSON.stringify(data),
+            // contentType: "application/json; charset=utf-8",
+            headers: {
+                "Node-RED-Deployment-Type": deploymentType
+            }
+        }).done(function (data, textStatus, xhr) {
+            callback();
+        });
+    }
 
     function init(resolveConflictFunc) {
         $('<span class="deploy-button-group button-group"><a id="btn-commit" class="deploy-button disabled" href="#">' +
@@ -113,7 +117,8 @@ RED.gitvcs = (function () {
         disableCommitButton: disableCommitButton,
         enableCommitButtonIfAllowed: enableCommitButtonIfAllowed,
         setAllowCommitMode: setAllowCommitMode,
-        setLastMergedRevision: setLastMergedRevision
+        setLastMergedRevision: setLastMergedRevision,
+        sendSignalToReloadFlowFromGithub: sendSignalToReloadFlowFromGithub
     }
 
 })();
