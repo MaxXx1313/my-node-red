@@ -40,6 +40,10 @@ RED.gitvcs = (function () {
 
     function setLastMergedRevision(rev) {
         lastMergedRevision = rev;
+        $.ajax({
+            url: "/lastMergedRevision?" + (lastMergedRevision ? "lastMergedRevision=" + lastMergedRevision : ""),
+            type: "POST"
+        })
     }
 
     function commit() {
