@@ -349,6 +349,7 @@ RED.deploy = (function() {
                 RED.nodes.dirty(false);
                 RED.nodes.version(data.rev);
                 RED.nodes.originalFlow(nns); //
+                RED.gitvcs.setLastMergedRevision();
                 if (hasUnusedConfig) {
                     RED.notify(
                     '<p>'+RED._("deploy.successfulDeploy")+'</p>'+
