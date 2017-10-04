@@ -72,6 +72,7 @@ RED.gitvcs = (function () {
                 window.onbeforeunload = null;
             })
             .fail(function (xhr, textStatus, err) {
+                RED.notify(RED._("notification.error",{message:xhr.responseText}), "error");
                 if (xhr.status === 409) {
                     sendSignalToReloadFlowFromGithub(function() {
                         if (resolveConflictFunction) resolveConflictFunction(nns);
