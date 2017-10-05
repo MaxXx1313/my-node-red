@@ -65,6 +65,7 @@ RED.gitvcs = (function () {
             }
         })
             .done(function () {
+                RED.notify(RED._("Successfully committed"),"success");
                 RED.nodes.originalFlow(nns);
                 lastMergedRevision = null;
                 disableCommitButton();
