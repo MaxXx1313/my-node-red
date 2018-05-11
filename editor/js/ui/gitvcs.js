@@ -104,7 +104,7 @@ RED.gitvcs = (function () {
 
     function init(resolveConflictFunc) {
         $('<span class="deploy-button-group button-group"><a id="btn-commit" class="deploy-button disabled" href="#">' +
-            '<span class="deploy-button-content">Commit to Github</span>' +
+            '<span class="deploy-button-content">Save</span>' +
             '<span class="deploy-button-spinner hide">' +
                 '<img src="red/images/spin.svg"/>' +
             '</span>' +
